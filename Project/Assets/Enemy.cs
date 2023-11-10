@@ -41,13 +41,14 @@ public class Enemy : MonoBehaviour
                 Debug.Log("플레이어 체력: " + player.curHP);
             }else if(num == 2) //반격
             {
-                player.curHP -= this.CalDamage() * 0.5f;
-                this.curHP -= this.CalDamage() * 0.3f;
+                player.curHP -= this.CalDamage() * 1.0f;
+                this.curHP -= this.CalDamage() * 0.4f;
                 Debug.Log("플레이어 체력: " + player.curHP);
             }
         }
         else
         {
+            Destroy(player);
             Debug.Log("전투 종료..");
         }
      
