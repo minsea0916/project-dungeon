@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
@@ -9,14 +10,17 @@ public class Player : MonoBehaviour
     Vector3 dir;
     Quaternion lookTarget;
 
-    float hp = 100;
-    float mp = 100;
+    public float maxHP = 100;
+    public float curHP = 100;
+    public float mp = 100;
 
-    float str = 10; //힘
-    float dex = 10; //민첩
-    float vision = 10; //시야
-    float defense = 10; //방어력
-    float offense = 10; //공격력
+    public float str = 10; //힘
+    public float dex = 10; //민첩
+    public float vision = 10; //시야
+    public float defense = 10; //방어력
+    public float offense = 10; //공격력
+
+    public float damage;
 
     bool move = false;
 
@@ -67,6 +71,33 @@ public class Player : MonoBehaviour
 
             // 캐릭터의 위치와 목표 위치의 거리가 0.05f 보다 큰 동안만 이동
             move = (transform.position - destPos).magnitude > 0.05f;
+        }
+    }
+
+    public float CalDamage()
+    {
+        float damage = this.offense;
+        int critical = Random.Range(0, 100);
+
+        if (critical % 4 == 0)
+        {
+            damage = (str * offense) * 0.05f;
+            Debug.Log("크리티컬!");
+        }
+        else
+            damage = (str * offense) * 0.03f;
+
+        return damage;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Enemy")
+        {
+            Enemy enemy = other.GetComponent<Enemy>();
+            curHP -= enemy.CalDamage();
+
+            Debug.Log("플레이어 체력: " + curHP);
         }
     }
 }
