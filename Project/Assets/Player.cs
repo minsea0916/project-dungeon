@@ -10,17 +10,15 @@ public class Player : MonoBehaviour
     Vector3 dir;
     Quaternion lookTarget;
 
-    public float maxHP = 100;
-    public float curHP = 100;
-    public float mp = 100;
+    public float maxHP;
+    public float curHP;
+    public float mp;
 
-    public float str = 10; //힘
-    public float dex = 10; //민첩
-    public float vision = 10; //시야
-    public float defense = 10; //방어력
-    public float offense = 10; //공격력
-
-    public float damage;
+    float str; //힘
+    float dex; //민첩
+    float vision; //시야
+    float defense; //방어력
+    float offense = 10; //공격력
 
     bool move = false;
 
@@ -76,28 +74,35 @@ public class Player : MonoBehaviour
 
     public float CalDamage()
     {
-        float damage = this.offense;
-        int critical = Random.Range(0, 100);
+        float damage;
 
+        //크리티컬 확률
+        int critical = Random.Range(0, 100);
         if (critical % 4 == 0)
         {
-            damage = (str * offense) * 0.05f;
+            damage = offense * 0.5f;
             Debug.Log("크리티컬!");
         }
         else
-            damage = (str * offense) * 0.03f;
+            damage = offense * 0.3f;
 
         return damage;
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void Attack(Enemy enemy)
     {
-        if (other.tag == "Enemy")
+        if (enemy.curHP > 0)
         {
-            Enemy enemy = other.GetComponent<Enemy>();
-            curHP -= enemy.CalDamage();
+            enemy.curHP -= this.CalDamage();
 
-            Debug.Log("플레이어 체력: " + curHP);
+            Debug.Log("적 체력: " + enemy.curHP);
+
+            enemy.Attack(this);
+        }
+        else
+        {
+            Debug.Log("전투 종료!");
+            
         }
     }
 }

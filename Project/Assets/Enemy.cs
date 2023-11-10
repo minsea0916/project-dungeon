@@ -13,32 +13,35 @@ public class Enemy : MonoBehaviour
     Rigidbody rigid;
     BoxCollider boxCollider;
 
+    void Start()
+    {
 
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
     private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
         boxCollider = GetComponent<BoxCollider>();
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void Attack(Player player)
     {
-        if (other.tag == "Player")
+        if (player.curHP > 0)
         {
-            Player player = other.GetComponent<Player>();
-            curHP -= player.CalDamage();
+            player.curHP -= this.CalDamage();
 
-            Debug.Log("적 체력: " + curHP);
+            Debug.Log("플레이어 체력: " + player.curHP);
         }
-    }
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        else
+        {
+            Debug.Log("전투 종료..");
+        }
+     
     }
 
     public float CalDamage()
