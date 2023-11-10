@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public int stage;
 
     public GameObject GamePanel;
+    public GameObject SettingSet;
     public Text stageTxt;
     public Text playerHealthTxt;
     public Text playerMentalTxt;
@@ -26,10 +27,16 @@ public class GameManager : MonoBehaviour
     public Image Setting;
     public Player player;
 
-    //void Update()
-    //{
-    //    if (Inp)
-    //}
+    void Update()
+    {
+        //Sub Menu
+        if (Input.GetButtonDown("Cancel")) {
+            if(SettingSet.activeSelf)
+                SettingSet.SetActive(false);  
+            else
+                SettingSet.SetActive(true);
+        }
+    }
     void LateUpdate()
     {
         //플레이어 UI
