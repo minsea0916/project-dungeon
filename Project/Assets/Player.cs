@@ -82,11 +82,11 @@ public class Player : MonoBehaviour
         int critical = Random.Range(0, 100);
         if (critical % 4 == 0)
         {
-            damage = (offense + tempOffense) * 0.5f;
+            damage = (offense + tempOffense) * 1.5f;
             Debug.Log("크리티컬!");
         }
         else
-            damage = (offense + tempOffense) * 0.3f;
+            damage = (offense + tempOffense) * 1.0f;
 
         return damage;
     }
@@ -121,6 +121,7 @@ public class Player : MonoBehaviour
         }
         else
         {
+            Destroy(enemy);
             Debug.Log("전투 종료!");
 
         }
