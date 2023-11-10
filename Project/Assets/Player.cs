@@ -9,6 +9,15 @@ public class Player : MonoBehaviour
     Vector3 dir;
     Quaternion lookTarget;
 
+    float hp = 100;
+    float mp = 100;
+
+    float str = 10; //Èû
+    float dex = 10; //¹ÎÃ¸
+    float vision = 10; //½Ã¾ß
+    float defense = 10; //¹æ¾î·Â
+    float offense = 10; //°ø°Ý·Â
+
     bool move = false;
 
     private void Start()
