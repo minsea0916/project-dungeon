@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -29,13 +30,21 @@ public class Enemy : MonoBehaviour
         boxCollider = GetComponent<BoxCollider>();
     }
 
-    public void Attack(Player player)
+    public void Attack(Player player, int num)
     {
         if (player.curHP > 0)
         {
-            player.curHP -= this.CalDamage();
+            if (num == 1)
+            {
+                player.curHP -= this.CalDamage();
 
-            Debug.Log("플레이어 체력: " + player.curHP);
+                Debug.Log("플레이어 체력: " + player.curHP);
+            }else if(num == 2) //반격
+            {
+                player.curHP -= this.CalDamage() * 0.5f;
+                this.curHP -= this.CalDamage() * 0.3f;
+                Debug.Log("플레이어 체력: " + player.curHP);
+            }
         }
         else
         {

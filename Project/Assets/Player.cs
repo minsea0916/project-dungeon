@@ -20,6 +20,8 @@ public class Player : MonoBehaviour
     float defense; //방어력
     float offense = 10; //공격력
 
+    int tempOffense;
+
     bool move = false;
 
     private void Start()
@@ -72,7 +74,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    public float CalDamage()
+    public float CalDamage() //temp는 전투 중 집중을 통한 일시적 공격력 증가량
     {
         float damage;
 
@@ -80,11 +82,11 @@ public class Player : MonoBehaviour
         int critical = Random.Range(0, 100);
         if (critical % 4 == 0)
         {
-            damage = offense * 0.5f;
+            damage = (offense + tempOffense) * 0.5f;
             Debug.Log("크리티컬!");
         }
         else
-            damage = offense * 0.3f;
+            damage = (offense + tempOffense) * 0.3f;
 
         return damage;
     }
@@ -93,16 +95,41 @@ public class Player : MonoBehaviour
     {
         if (enemy.curHP > 0)
         {
+            Debug.Log("공격");
             enemy.curHP -= this.CalDamage();
+            tempOffense = 0;
 
             Debug.Log("적 체력: " + enemy.curHP);
 
-            enemy.Attack(this);
+            enemy.Attack(this, 1);
         }
         else
         {
             Debug.Log("전투 종료!");
             
         }
+    }
+
+    public void CounterAttack(Enemy enemy)
+    {
+        if (enemy.curHP > 0)
+        {
+            Debug.Log("반격");
+            enemy.Attack(this, 2);
+
+            Debug.Log("적 체력: " + enemy.curHP);
+        }
+        else
+        {
+            Debug.Log("전투 종료!");
+
+        }
+    }
+
+    public void Focusing(Enemy enemy)
+    {
+        Debug.Log("집중");
+        tempOffense += 5;
+        enemy.Attack(this, 1);
     }
 }
