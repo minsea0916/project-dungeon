@@ -101,3 +101,10 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/unity,windows
+Project/Logs/AssetImportWorker0.log
+Project/Logs/AssetImportWorker1.log
+Project/Logs/shadercompiler-UnityShaderCompiler.exe0.log
+Project/Logs/shadercompiler-UnityShaderCompiler.exe1.log
+Project/Logs/shadercompiler-UnityShaderCompiler.exe2.log
+Project/Logs/shadercompiler-UnityShaderCompiler.exe3.log
+*.log
