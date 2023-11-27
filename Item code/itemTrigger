@@ -1,0 +1,93 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class player: MonoBehaviour
+{
+    public float speed;
+    public GameObject[] weapons;
+    public bool[] hasWeapons;
+
+    public int HP;
+    public int Mt;
+    public int Power;
+    public int Speed;
+    public int exp;
+    public int ammo;
+    public int maxAmmo;
+    public int maxHP;
+    public int maxMt;
+    public int maxExp;
+
+    Rigidbody rigid;
+    Animator anim;
+
+    void Awake()
+    {
+        rigid = GetComponent<Rigidbody>();
+        anim = GetComponentInChildren<Animator>();
+    }
+        void OnTriggerEnter(Collider other)
+        {
+            if (other.tag == "Item")
+            {
+                item item = other.GetComponent<item>();
+                switch (item.type) {
+                    case item.Type.Ammo:
+                        ammo += item.value;
+                        if (ammo > maxAmmo)
+                            ammo = maxAmmo;
+                        break;
+
+                    case item.Type.Hp_potion: //최대 체력 증가
+                        maxHP += item.value;
+                        //if (HP > maxHP)
+                            //HP = maxHP;
+                        break;
+
+                     case item.Type.Mt_potion: //최대 마나 증가
+                        maxMt += item.value;
+                        break;
+
+                     case item.Type.Power_potion: //힘 증가
+                        Power += item.value;
+                        break;
+
+                     case item.Type.Speed_potion: //민첩 증가
+                        Speed += item.value;
+                        break;
+
+                     case item.Type.exp_potion: //경험치 증가
+                        exp += item.value;
+                        if (exp > maxExp || exp == maxExp)
+
+                            maxExp += 1000;
+                            maxHP += 30;
+                            maxMt += 30;
+                            Power += 5;
+                            Speed += 5;
+
+                        break;
+
+            }
+                Destroy(other.gameObject);
+            }
+
+        }
+
+        void OnTriggerStay(Collider other)
+        {
+            if (other.tag == "Weapon")
+                nearObject = other.gameObject;
+        }
+
+        void OnTriggerExit(Collider other)
+        {
+            if (other.tag == "Weapon")
+                nearObject = null;
+
+        }
+    }
+
+
+    
