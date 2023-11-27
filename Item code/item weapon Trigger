@@ -1,0 +1,280 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Transactions;
+using UnityEngine;
+
+public class player : MonoBehaviour
+{
+    public float speed;
+    public GameObject[] weapons;
+    public bool[] hasWeapons;
+    public GameObject[] grenades;
+    public int hasGrenades;
+
+
+    public int ammo;
+    public int coin;
+    public int health;
+    
+
+    public int Maxammo;
+    public int Maxcoin;
+    public int Maxhealth;
+    public int MaxhasGrenades;
+
+    float haxis;
+    float vaxis;
+    bool wdown;
+    bool jdown;
+    bool idown;
+    bool fdown;
+    bool sdown1;
+    bool sdown2;
+    bool sdown3;
+    
+
+    bool isjump;
+    bool isdodge;
+    bool isswap;
+    bool isFireReady = true;
+        
+    Vector3 moveVec;
+    Vector3 dodgeVec;
+
+    Rigidbody rigid;
+    Animator anim;
+
+    GameObject nearObject;
+    weapon equipWeapon;
+
+    int equipWeaponIndex = -1;
+    float fireDelay;
+    void Awake()
+    {
+        rigid = GetComponent<Rigidbody>();
+        anim = GetComponentInChildren<Animator>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        GetInput();
+        Move();
+        Turn();
+        Jump();
+        Attack();
+        Dodge();
+        Swap();
+        Interation();
+        
+
+    }
+
+    void GetInput()
+    {
+        haxis = Input.GetAxisRaw("Horizontal");
+        vaxis = Input.GetAxisRaw("Vertical");
+        wdown = Input.GetButton("walk");
+        jdown = Input.GetButtonDown("Jump");
+        fdown = Input.GetButtonDown("Fire1");
+        idown = Input.GetButtonDown("Interation");
+        sdown1 = Input.GetButtonDown("Swap1");
+        sdown2 = Input.GetButtonDown("Swap2");
+        sdown3 = Input.GetButtonDown("Swap3");
+    }
+
+    void Move()
+    {
+        moveVec = new Vector3(haxis, 0, vaxis).normalized;//normalize 는 어떤 값이든 1로 보정 해줌
+
+        if (isdodge)
+        {
+            moveVec = dodgeVec;
+        }
+        if(isswap || !isFireReady)
+        {
+            moveVec = Vector3.zero;
+        }
+
+        transform.position += moveVec * speed * (wdown ? 0.3f : 1f) * Time.deltaTime;
+
+    
+        anim.SetBool("isrun", moveVec != Vector3.zero);
+        anim.SetBool("iswalk", wdown);
+
+      
+    }
+
+    void Turn()
+    {
+        transform.LookAt(transform.position + moveVec);
+    }
+
+    void Jump()
+    {
+        if(jdown && moveVec == Vector3.zero && !isjump && !isdodge && !isswap)
+        {
+            rigid.AddForce(Vector3.up * 15, ForceMode.Impulse);
+            anim.SetBool("isjump", true);
+            anim.SetTrigger("dojump" );
+            isjump = true;
+        }
+        
+    }
+
+    void Attack()
+    {
+        if (equipWeapon == null)
+            return;
+        fireDelay += Time.deltaTime;
+        isFireReady = equipWeapon.rate < fireDelay;
+
+        if(fdown && isFireReady && !isdodge && !isswap)
+        {
+            equipWeapon.Use();
+            anim.SetTrigger("doswing");
+            fireDelay = 0;
+        }
+    }
+    void Dodge()
+    {
+        if(jdown && moveVec != Vector3.zero && !isjump && !isdodge && !isswap)
+        {
+            dodgeVec = moveVec;
+            speed *= 2;
+            anim.SetTrigger("dododge");
+            isdodge= true;
+
+            Invoke("DodgeOut", 0.5f);
+        }
+
+    }
+
+    void DodgeOut()
+    {
+        speed *= 0.5f;
+        isdodge = false;
+    }
+
+    void Swap()//무기교체 함수
+    {
+        if (sdown1 && (!hasWeapons[0] || equipWeaponIndex == 0))
+        {
+            return;
+        }
+        if (sdown2 && (!hasWeapons[1] || equipWeaponIndex == 1))
+        {
+            return;
+        }
+        if (sdown3 && (!hasWeapons[2] || equipWeaponIndex == 2))
+        {
+            return;
+        }
+
+        int weaponIndex = -1;
+        if (sdown1) weaponIndex = 0;
+        if (sdown2) weaponIndex = 1;
+        if (sdown3) weaponIndex = 2;
+
+        if ((sdown1 || sdown2 || sdown3) && !isjump && !isdodge)
+        {
+            weapons[weaponIndex].SetActive(true);
+            if (equipWeapon != null)
+            {
+                equipWeapon.gameObject.SetActive(false);
+            }
+
+            equipWeaponIndex = weaponIndex;
+            equipWeapon = weapons[weaponIndex].GetComponent<weapon>();
+            equipWeapon.gameObject.SetActive(true);
+
+            anim.SetTrigger("doswap");
+
+            isswap = true;
+            Invoke("SwapOut", 0.5f);
+        }
+    }
+
+    void SwapOut()
+    {
+        isswap = false;
+    }
+    void Interation()
+    {
+        if(idown&&nearObject != null &&!isjump&&!isdodge)
+        {
+            if (nearObject.tag == "Weapon")
+            {
+                items item =nearObject.GetComponent<items>();
+                int weaponIndex = item.value;
+                hasWeapons[weaponIndex] = true; 
+
+                Destroy(nearObject );
+            }
+          
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Floor")
+        {
+            anim.SetBool("isjump", false);
+            isjump = false;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Item")
+        {
+            items item = other.GetComponent<items>();
+            switch(item.type) {
+                case items.Type.Ammo:
+                    ammo += item.value;
+                    if(ammo > Maxammo )
+                       ammo = Maxammo;
+                    break;
+                case items.Type.Coin:
+                    coin += item.value;
+                    if (coin > Maxcoin)
+                        coin = Maxcoin;
+                    break;
+                case items.Type.Heart:
+                    health += item.value;
+                    if (health > Maxhealth)
+                        health = Maxhealth;
+                    break;
+                case items.Type.Grenade:
+                    grenades[hasGrenades].SetActive(true);
+                    hasGrenades  += item.value;
+                    if (hasGrenades > MaxhasGrenades)
+                        hasGrenades = MaxhasGrenades;
+                    break;
+
+            }
+            Destroy(other.gameObject);
+        }
+    }
+
+    void OnTriggerStay(Collider other)
+    {
+        if(other.tag== "Weapon")
+            nearObject = other.gameObject;
+        if(other.tag == "Item")
+            nearObject = other.gameObject;
+        
+
+        Debug.Log(nearObject.name);
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "Weapon")
+            nearObject = null;
+        if (other.tag == "Item")
+            nearObject = null;
+        
+    }
+}
